@@ -1,0 +1,68 @@
+# Dependencies
+node_modules/
+vendor/
+*.egg-info/
+__pycache__/
+
+# Build outputs
+dist/
+build/
+out/
+bin/
+obj/
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+.mvn/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.classpath
+.factorypath
+.project
+.settings/
+
+# Database files (not source code)
+db/*.db
+db/*.db-wal
+db/*.db-shm
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+
+# Para no subir
+.atl/
+.claude/
+ADRs/
+docs/
+AGENTS.md
