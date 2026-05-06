@@ -1,5 +1,6 @@
 #!/bin/bash
-# Start Appointments Service
+# Start Appointments Service (v2-asincrona)
+# Requires: docker-compose up -d (RabbitMQ + PostgreSQL)
 # Port: 8082
 
 SERVICE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../services/appointments-service" && pwd)"

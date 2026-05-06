@@ -1,5 +1,6 @@
 #!/bin/bash
-# Start Users Service
+# Start Users Service (v2-asincrona)
+# Requires: docker-compose up -d (RabbitMQ + PostgreSQL)
 # Port: 8081
 
 SERVICE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../services/users-service" && pwd)"

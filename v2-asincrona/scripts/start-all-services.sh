@@ -1,5 +1,6 @@
 #!/bin/bash
-# Start All Microservices
+# Start All Microservices (v2-asincrona - RabbitMQ async version)
+# IMPORTANT: Run 'docker-compose up -d' first to start RabbitMQ and PostgreSQL
 # This script starts all microservices in the background
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

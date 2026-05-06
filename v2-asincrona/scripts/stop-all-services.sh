@@ -1,5 +1,6 @@
 #!/bin/bash
-# Stop All Microservices
+# Stop All Microservices (v2-asincrona)
+# Run 'docker-compose down' to stop infrastructure
 
 echo "========================================="
 echo "  Stopping Medical Services Network"
