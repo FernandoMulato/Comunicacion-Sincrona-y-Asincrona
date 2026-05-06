@@ -1,0 +1,61 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: users-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/users_db
+    username: medical_user
+    password: ${DB_PASSWORD:medical123}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+# Management
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# Logging
+logging:
+  level:
+    com.medical: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: WARN
+    org.springframework.amqp: INFO
+
+# RabbitMQ Configuration
+spring.rabbitmq:
+  host: localhost
+  port: 5672
+  username: guest
+  password: guest
+  virtual-host: /
+  listener:
+    simple:
+      retry:
+        enabled: true
+        initial-interval: 3000
+        max-attempts: 3
+      default-requeue-rejected: false

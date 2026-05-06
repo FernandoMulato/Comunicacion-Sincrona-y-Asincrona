@@ -67,5 +67,6 @@ ADRs/
 docs/
 AGENTS.md
 
-# Pero permitir docs de v1-sincrona
+# Pero permitir docs de v1-sincrona y v2-asincrona
 !v1-sincrona/docs/
+!v2-asincrona/docs/
