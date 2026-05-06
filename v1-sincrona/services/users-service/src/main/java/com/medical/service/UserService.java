@@ -65,6 +65,21 @@ public class UserService {
 
         User savedUser = userRepository.save(user);
 
+        // If role is PATIENT, create Patient record
+        if (request.getRole() == UserRole.PATIENT) {
+            Patient patient = Patient.builder()
+                    .user(savedUser)
+                    .firstName(request.getFirstName())
+                    .lastName(request.getLastName())
+                    .documentType(request.getDocumentType())
+                    .documentNumber(request.getDocumentNumber())
+                    .phone(request.getPhone())
+                    .address(request.getAddress())
+                    .eps(request.getEps())
+                    .build();
+            patientRepository.save(patient);
+        }
+
         return mapToResponse(savedUser);
     }
 
