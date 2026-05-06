@@ -65,4 +65,8 @@ temp/
 .claude/
 ADRs/
 docs/
+v2-asincrona/
 AGENTS.md
+
+# Pero permitir docs de v1-sincrona
+!v1-sincrona/docs/
