@@ -5,13 +5,16 @@ import com.medical.dto.UpdateUserRequest;
 import com.medical.dto.UserResponse;
 import com.medical.entities.User;
 import com.medical.entities.UserRole;
+import com.medical.entities.Patient;
 import com.medical.repository.UserRepository;
+import com.medical.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service for user management.
@@ -21,6 +24,7 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PatientRepository patientRepository;
     private final PasswordEncoder passwordEncoder;
 
     /**
@@ -184,5 +188,22 @@ public class UserService {
 
         user.setActive(false);
         userRepository.save(user);
+    }
+
+    /**
+     * Validate if a patient exists by document number.
+     * Used by appointments-service for synchronous validation.
+     */
+    @Transactional(readOnly = true)
+    public boolean validatePatientByDocument(String documentNumber) {
+        return patientRepository.existsByDocumentNumber(documentNumber);
+    }
+
+    /**
+     * Get patient by document number.
+     */
+    @Transactional(readOnly = true)
+    public Optional<Patient> getPatientByDocument(String documentNumber) {
+        return patientRepository.findByDocumentNumber(documentNumber);
     }
 }

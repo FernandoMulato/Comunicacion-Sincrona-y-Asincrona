@@ -31,6 +31,12 @@ public class AppointmentService {
      */
     @Transactional
     public AppointmentResponse createAppointment(CreateAppointmentRequest request) {
+        // Validate patient exists via synchronous call to users-service
+        boolean patientExists = patientClient.validatePatient(request.getPatientDocument());
+        if (!patientExists) {
+            throw new IllegalArgumentException("Patient not found with document: " + request.getPatientDocument());
+        }
+
         // Validate date is not in the past (E3-US3)
         if (request.getDate().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("Cannot schedule appointments in the past");

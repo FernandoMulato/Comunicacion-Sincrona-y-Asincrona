@@ -82,4 +82,15 @@ public class UserController {
     public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
+
+    /**
+     * Validate if a patient exists by document number.
+     * Used by appointments-service for synchronous communication.
+     * GET /api/users/patients/validate/{documentNumber}
+     */
+    @GetMapping("/patients/validate/{documentNumber}")
+    public ResponseEntity<Boolean> validatePatient(@PathVariable String documentNumber) {
+        boolean exists = userService.validatePatientByDocument(documentNumber);
+        return ResponseEntity.ok(exists);
+    }
 }

@@ -5,6 +5,7 @@ import com.medical.dto.UserResponse;
 import com.medical.entities.User;
 import com.medical.entities.UserRole;
 import com.medical.repository.UserRepository;
+import com.medical.repository.PatientRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,13 +34,16 @@ class UserServiceTest {
     private UserRepository userRepository;
 
     @Mock
+    private PatientRepository patientRepository;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     private UserService userService;
 
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
-        userService = new UserService(userRepository, passwordEncoder);
+        userService = new UserService(userRepository, patientRepository, passwordEncoder);
     }
 
     @Test
