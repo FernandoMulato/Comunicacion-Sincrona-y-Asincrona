@@ -66,6 +66,7 @@ temp/
 ADRs/
 docs/
 AGENTS.md
+proposal.md
 
 # Pero permitir docs de v1-sincrona y v2-asincrona
 !v1-sincrona/docs/

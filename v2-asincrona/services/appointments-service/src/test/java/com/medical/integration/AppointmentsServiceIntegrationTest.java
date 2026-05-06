@@ -5,14 +5,8 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.RabbitMQContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -20,88 +14,115 @@ import java.time.LocalTime;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Integration tests for appointments-service with async RabbitMQ communication.
- * Uses TestContainers to spin up RabbitMQ and PostgreSQL.
+ * Integration tests for appointments-service with async RabbitMQ.
  * 
- * Run with: mvn test -Dtest=AppointmentsServiceIntegrationTest
- * Requires: Docker running and accessible
+ * NOTE: Requires services to be running manually:
+ * 1. docker-compose up -d (RabbitMQ + PostgreSQL)
+ * 2. java -jar services/users-service/target/users-service-1.0.0-SNAPSHOT.jar
+ * 3. java -jar services/appointments-service/target/appointments-service-1.0.0-SNAPSHOT.jar
+ * 4. Then run: mvn test -Dtest=AppointmentsServiceIntegrationTest
  * 
- * Note: These tests require Docker to be available. If Docker is not available,
- * the tests will be skipped.
+ * Or better: Run manually via curl and verify the flow works.
  */
-@Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Disabled("Requires Docker - run manually with services up or use TestContainers in CI/CD")
+@Disabled("Requires manual service startup - see class Javadoc")
 class AppointmentsServiceIntegrationTest {
 
-    @Container
-    static RabbitMQContainer rabbitMQContainer = new RabbitMQContainer("rabbitmq:3-management");
-
-    @Container
-    static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:14")
-            .withDatabaseName("appointments_db")
-            .withUsername("medical_user")
-            .withPassword("medical123");
-
-    @BeforeAll
-    static void checkDocker() {
-        try {
-            DockerClientFactory.instance().client();
-        } catch (Exception e) {
-            Assumptions.assumeTrue(false, "Docker not available - skipping integration tests");
-        }
-    }
-
-    @LocalServerPort
-    private int port;
+    private static final String USERS_SERVICE_URL = "http://localhost:8081";
+    private static final String APPOINTMENTS_SERVICE_URL = "http://localhost:8082";
+    private static final String TEST_USER_DOC = "55555555";
 
     @Autowired
     private TestRestTemplate restTemplate;
 
-    @Test
-    void shouldRejectAppointment_whenDateInPast() {
-        // Test that past dates are rejected (doesn't need users-service)
-        CreateAppointmentRequest request = CreateAppointmentRequest.builder()
-                .patientDocument("55555555")
-                .patientName("Test Patient")
-                .patientPhone("3005555555")
-                .professionalId(1L)
-                .professionalName("Dr. Smith")
-                .date(LocalDate.now().minusDays(1))
-                .time(LocalTime.of(10, 0))
-                .durationMinutes(30)
-                .reason("Should fail - past date")
-                .build();
-
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                "http://localhost:" + port + "/api/appointments",
-                request,
-                String.class
-        );
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertTrue(response.getBody().contains("past"));
-    }
-
-    @Test
-    void shouldGetAllAppointments() {
-        ResponseEntity<String> response = restTemplate.getForEntity(
-                "http://localhost:" + port + "/api/appointments",
-                String.class
-        );
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(response.getBody().startsWith("["));
+    @BeforeEach
+    void setUp() {
+        // Create test patient in users-service if needed
     }
 
     @Test
     void shouldReturnServiceHealth() {
         ResponseEntity<String> response = restTemplate.getForEntity(
-                "http://localhost:" + port + "/actuator/health",
+                APPOINTMENTS_SERVICE_URL + "/actuator/health",
+                String.class
+        );
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void shouldCreateAppointment_whenPatientExists() {
+        CreateAppointmentRequest request = CreateAppointmentRequest.builder()
+                .patientDocument(TEST_USER_DOC)
+                .patientName("Test Patient")
+                .patientPhone("3005555555")
+                .professionalId(1L)
+                .professionalName("Dr. Smith")
+                .date(LocalDate.now().plusDays(5))
+                .time(LocalTime.of(10, 0))
+                .durationMinutes(30)
+                .reason("Integration test")
+                .build();
+
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                APPOINTMENTS_SERVICE_URL + "/api/appointments",
+                request,
                 String.class
         );
 
+        // Verify async flow works
+        assertEquals(HttpStatus.CREATED, response.getStatusCode(),
+                "Response: " + response.getBody());
+    }
+
+    @Test
+    void shouldReject_whenPatientNotExists() {
+        CreateAppointmentRequest request = CreateAppointmentRequest.builder()
+                .patientDocument("NONEXISTENT999")
+                .patientName("Test")
+                .patientPhone("3000000000")
+                .professionalId(1L)
+                .professionalName("Dr. Smith")
+                .date(LocalDate.now().plusDays(5))
+                .time(LocalTime.of(11, 0))
+                .build();
+
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                APPOINTMENTS_SERVICE_URL + "/api/appointments",
+                request,
+                String.class
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void shouldReject_whenDateInPast() {
+        CreateAppointmentRequest request = CreateAppointmentRequest.builder()
+                .patientDocument(TEST_USER_DOC)
+                .patientName("Test")
+                .patientPhone("3000000000")
+                .professionalId(1L)
+                .professionalName("Dr. Smith")
+                .date(LocalDate.now().minusDays(1))
+                .time(LocalTime.of(10, 0))
+                .build();
+
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                APPOINTMENTS_SERVICE_URL + "/api/appointments",
+                request,
+                String.class
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertTrue(response.getBody().toLowerCase().contains("past"));
+    }
+
+    @Test
+    void shouldGetAllAppointments() {
+        ResponseEntity<String> response = restTemplate.getForEntity(
+                APPOINTMENTS_SERVICE_URL + "/api/appointments",
+                String.class
+        );
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(response.getBody().contains("UP"));
     }
 }

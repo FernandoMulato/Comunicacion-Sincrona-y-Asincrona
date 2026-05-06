@@ -207,7 +207,7 @@ public class UserService {
 
     /**
      * Validate if a patient exists by document number.
-     * Used by appointments-service for synchronous validation.
+     * REST fallback for debug - v2-asincrona uses RabbitMQ async validation.
      */
     @Transactional(readOnly = true)
     public boolean validatePatientByDocument(String documentNumber) {

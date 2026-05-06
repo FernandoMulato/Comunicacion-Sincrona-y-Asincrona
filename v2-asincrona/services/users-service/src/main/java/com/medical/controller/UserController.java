@@ -85,7 +85,7 @@ public class UserController {
 
     /**
      * Validate if a patient exists by document number.
-     * Used by appointments-service for synchronous communication.
+     * REST fallback for debug - v2-asincrona uses RabbitMQ async validation.
      * GET /api/users/patients/validate/{documentNumber}
      */
     @GetMapping("/patients/validate/{documentNumber}")

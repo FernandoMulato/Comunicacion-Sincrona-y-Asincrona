@@ -27,7 +27,7 @@ spring:
     serialization:
       write-dates-as-timestamps: false
 
-# Users service URL for synchronous communication
+# Users service URL (for REST fallback/debug - v2 uses RabbitMQ async)
 users-service:
   url: http://localhost:8081/api/users
 
