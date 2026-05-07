@@ -186,17 +186,3 @@ cd scripts
 ## Licencia
 
 Este proyecto es para fines educativos y de demostración.
-
----
-
-## Contribuir
-
-1. Crear un branch: `git checkout -b feature/nueva-funcionalidad`
-2. Hacer commit: `git commit -m 'feat: descripción'`
-3. Push: `git push origin feature/nueva-funcionalidad`
-4. Crear Pull Request
-
----
-
-**Autor:** Henry Fernando Mulato Llanten  
-**Proyecto:** Medical Services Network - Centro de Salud Piedra Azul
